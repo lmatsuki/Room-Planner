@@ -1,13 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
 public class Icons : MonoBehaviour {
 
-    //for testing
-    public List<Item> itemTest;
+    public float itemSizeFactor = 1.0f;
 
     GameObject prefabFolder;
     GameObject addItemPanel;
@@ -22,13 +20,15 @@ public class Icons : MonoBehaviour {
         roomPanel = GameObject.Find("Room Panel");
         itemHolder = GameObject.Find("Item Holder").transform;
         roomHolder = GameObject.Find("Room Holder").transform;
+        addItemPanel.SetActive(false);
 	}
 
     #region Add Item Functions
 
     public void AddItem()
     {
-        addItemPanel.transform.SetParent(transform);
+        //addItemPanel.transform.SetParent(transform);
+        addItemPanel.SetActive(true);
     }
 
     public void AddFurniture()
@@ -46,10 +46,11 @@ public class Icons : MonoBehaviour {
         float widthFloat, heightFloat;
 
         if (float.TryParse(widthInput, out widthFloat) && float.TryParse(heightInput, out heightFloat))
-            addFurnitureClone.GetComponent<RectTransform>().sizeDelta = new Vector2(widthFloat, heightFloat);        
+            addFurnitureClone.GetComponent<RectTransform>().sizeDelta = new Vector2(widthFloat * itemSizeFactor, heightFloat * itemSizeFactor);        
 
         addFurnitureClone.transform.SetParent(itemHolder);
-        addItemPanel.transform.SetParent(prefabFolder.transform);
+        //addItemPanel.transform.SetParent(prefabFolder.transform);
+        addItemPanel.SetActive(false);
     }
 
     public void AddRoom()
@@ -67,15 +68,17 @@ public class Icons : MonoBehaviour {
         float widthFloat, heightFloat;
 
         if (float.TryParse(widthInput, out widthFloat) && float.TryParse(heightInput, out heightFloat))
-            addFurnitureClone.GetComponent<RectTransform>().sizeDelta = new Vector2(widthFloat, heightFloat);
+            addFurnitureClone.GetComponent<RectTransform>().sizeDelta = new Vector2(widthFloat * itemSizeFactor, heightFloat * itemSizeFactor);
 
         addFurnitureClone.transform.SetParent(roomHolder);
-        addItemPanel.transform.SetParent(prefabFolder.transform);
+        //addItemPanel.transform.SetParent(prefabFolder.transform);
+        addItemPanel.SetActive(false);
     }
 
     public void Cancel()
     {
-        addItemPanel.transform.SetParent(prefabFolder.transform);
+        //addItemPanel.transform.SetParent(prefabFolder.transform);
+        addItemPanel.SetActive(false);
     }
 
     #endregion
@@ -134,11 +137,30 @@ public class Icons : MonoBehaviour {
         addItemPanel.transform.SetParent(prefabFolder.transform);
     }
 
+    public void LoadRoom(Room newRoom)
+    {
+        GameObject addRoomClone = (GameObject)Instantiate(roomPanel, new Vector3(Screen.width / 2, Screen.height / 2, 0), Quaternion.identity);
+
+        //get item name from newItem
+        string itemName = newRoom.itemName;
+        if (itemName != "" || itemName != "Enter text...")
+            addRoomClone.transform.GetChild(1).GetComponent<Text>().text = itemName;
+
+        //set item size by recttransform
+        RectTransform rect = addRoomClone.GetComponent<RectTransform>();
+        addRoomClone.transform.SetParent(roomHolder); // Order is important!!
+
+        rect.anchoredPosition = newRoom.aPos.GetVector();
+        rect.sizeDelta = newRoom.sDelta.GetVector();
+        rect.eulerAngles = newRoom.eAngles.GetVector();
+
+        addItemPanel.transform.SetParent(prefabFolder.transform);
+    }
+
     #endregion
 
     public void Quit()
     {
-        if(EditorUtility.DisplayDialog("", "Quit application?", "Ok", "Cancel"))
-            Application.Quit();
+        Application.Quit();
     }
 }

@@ -6,7 +6,6 @@ public class Item
 {
     public SerializableVector2 aPos, sDelta;
     public SerializableVector3 eAngles;
-
     public string itemName;
 
     public Item()

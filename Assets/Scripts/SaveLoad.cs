@@ -21,17 +21,26 @@ public static class SaveLoad {
         {
             RectTransform rect = itemHolder.transform.GetChild(i).GetComponent<RectTransform>();
             Item item = new Item();
-            //Debug.Log(rect.offsetMin.ToString());
-            //Debug.Log(rect.pivot.ToString());
             item.setRect(rect.anchoredPosition, rect.sizeDelta, rect.eulerAngles);
             item.itemName = itemHolder.transform.GetChild(i).GetChild(1).GetComponent<Text>().text;
             items.Add(item);
         }
 
         //Populate the rooms data
-        //Todo...
+        List<Room> rooms = new List<Room>();
+        GameObject roomHolder = GameObject.Find("Room Holder");
+        int roomCount = roomHolder.transform.childCount;
+        for (int i = 0; i < roomCount; i++)
+        {
+            RectTransform rect = roomHolder.transform.GetChild(i).GetComponent<RectTransform>();
+            Room room = new Room();
+            room.setRect(rect.anchoredPosition, rect.sizeDelta, rect.eulerAngles);
+            room.itemName = roomHolder.transform.GetChild(i).GetChild(1).GetComponent<Text>().text;
+            rooms.Add(room);
+        }
 
         savedFloors.items = items;
+        savedFloors.rooms = rooms;
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Create(Application.persistentDataPath + "/savedFiles.gd");
         bf.Serialize(file, savedFloors);
@@ -58,6 +67,10 @@ public static class SaveLoad {
             }
 
             //create rooms from save data
+            for (int i = 0; i < savedFloors.rooms.Count; i++)
+            {
+                iconScript.LoadRoom(savedFloors.rooms[i]);
+            }
         }
     }
 }
